@@ -1,0 +1,341 @@
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.navbar {
+  width: 100%;
+  padding: 24px 6%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.nav-button {
+  border: none;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.hero {
+  flex: 1;
+  width: min(1200px, 88%);
+  margin: auto;
+  display: grid;
+  grid-template-columns: 1fr 0.8fr;
+  align-items: center;
+  gap: 80px;
+  padding: 70px 0;
+}
+
+.hero-content {
+  max-width: 600px;
+}
+
+.eyebrow {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  opacity: 0.55;
+  margin-bottom: 20px;
+}
+
+h1 {
+  font-size: clamp(3rem, 6vw, 5.5rem);
+  line-height: 0.95;
+  letter-spacing: -4px;
+  margin: 0 0 30px;
+}
+
+.description {
+  max-width: 500px;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  opacity: 0.65;
+  margin-bottom: 35px;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.primary-button,
+.secondary-button {
+  border-radius: 999px;
+  padding: 15px 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.primary-button {
+  border: none;
+  background: #111;
+  color: white;
+}
+
+.secondary-button {
+  background: transparent;
+  border: 1px solid #ccc;
+  color: #111;
+}
+
+.primary-button:hover,
+.secondary-button:hover {
+  transform: translateY(-2px);
+}
+
+.preview {
+  display: flex;
+  justify-content: center;
+}
+
+.photo-card {
+  width: min(360px, 100%);
+  aspect-ratio: 3 / 4;
+  padding: 14px;
+  background: white;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.15);
+  transform: rotate(3deg);
+}
+
+.photo-placeholder {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #f3f3f3;
+  text-align: center;
+}
+
+.photo-placeholder span {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.photo-placeholder p {
+  opacity: 0.5;
+}
+
+footer {
+  text-align: center;
+  padding: 25px;
+  font-size: 0.8rem;
+  opacity: 0.5;
+}
+
+@media (max-width: 800px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 50px;
+    text-align: center;
+  }
+
+  .hero-content {
+    margin: auto;
+  }
+
+  .description {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-buttons {
+    justify-content: center;
+  }
+
+  .preview {
+    order: -1;
+  }
+
+  h1 {
+    letter-spacing: -2px;
+  }
+}
+
+/* =========================
+   PHOTO MODE SELECTOR
+========================= */
+
+.mode-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 1000;
+
+  background:
+    rgba(0, 0, 0, 0.55);
+
+  backdrop-filter: blur(8px);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 20px;
+}
+
+.mode-modal {
+  position: relative;
+
+  width: min(650px, 100%);
+
+  background: white;
+
+  border-radius: 24px;
+
+  padding: 40px;
+
+  box-shadow:
+    0 30px 100px rgba(0, 0, 0, 0.25);
+}
+
+.mode-close {
+  position: absolute;
+
+  top: 18px;
+
+  right: 20px;
+
+  width: 35px;
+
+  height: 35px;
+
+  border: none;
+
+  background: #f3f3f3;
+
+  border-radius: 50%;
+
+  font-size: 1.4rem;
+
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+.mode-eyebrow {
+  margin: 0 0 10px;
+
+  font-size: 0.75rem;
+
+  font-weight: 700;
+
+  letter-spacing: 2px;
+
+  opacity: 0.5;
+}
+
+.mode-modal h2 {
+  margin: 0 0 30px;
+
+  font-size: 2rem;
+
+  letter-spacing: -1px;
+}
+
+.mode-options {
+  display: grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap: 15px;
+}
+
+.mode-card {
+  border: 1px solid #ddd;
+
+  background: #fafafa;
+
+  border-radius: 18px;
+
+  padding: 22px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-start;
+
+  gap: 18px;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.mode-card:hover {
+  transform: translateY(-3px);
+
+  border-color: #111;
+
+  background: white;
+}
+
+.mode-icon {
+  width: 55px;
+
+  height: 55px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 15px;
+
+  background: #111;
+
+  color: white;
+
+  font-size: 1.6rem;
+}
+
+.mode-card h3 {
+  margin: 0 0 6px;
+
+  font-size: 1.05rem;
+}
+
+.mode-card p {
+  margin: 0;
+
+  font-size: 0.85rem;
+
+  line-height: 1.5;
+
+  opacity: 0.55;
+}
+
+@media (max-width: 600px) {
+  .mode-modal {
+    padding: 30px 20px;
+  }
+
+  .mode-options {
+    grid-template-columns: 1fr;
+  }
+}
