@@ -4,12 +4,17 @@
   flex-direction: column;
 }
 
+/* =========================
+   NAVBAR
+========================= */
+
 .navbar {
   width: 100%;
   padding: 24px 6%;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-sizing: border-box;
 }
 
 .logo {
@@ -24,7 +29,12 @@
   font: inherit;
   cursor: pointer;
   opacity: 0.7;
+  padding: 8px 0;
 }
+
+/* =========================
+   HERO
+========================= */
 
 .hero {
   flex: 1;
@@ -35,6 +45,7 @@
   align-items: center;
   gap: 80px;
   padding: 70px 0;
+  box-sizing: border-box;
 }
 
 .hero-content {
@@ -77,7 +88,9 @@ h1 {
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
 }
 
 .primary-button {
@@ -97,6 +110,10 @@ h1 {
   transform: translateY(-2px);
 }
 
+/* =========================
+   PHOTO PREVIEW
+========================= */
+
 .preview {
   display: flex;
   justify-content: center;
@@ -109,6 +126,7 @@ h1 {
   background: white;
   box-shadow: 0 25px 70px rgba(0, 0, 0, 0.15);
   transform: rotate(3deg);
+  box-sizing: border-box;
 }
 
 .photo-placeholder {
@@ -130,6 +148,10 @@ h1 {
   opacity: 0.5;
 }
 
+/* =========================
+   FOOTER
+========================= */
+
 footer {
   text-align: center;
   padding: 25px;
@@ -137,11 +159,132 @@ footer {
   opacity: 0.5;
 }
 
+/* =========================
+   PHOTO MODE SELECTOR
+========================= */
+
+.mode-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.mode-modal {
+  position: relative;
+  width: min(650px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  background: white;
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+}
+
+.mode-close {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  width: 35px;
+  height: 35px;
+  border: none;
+  background: #f3f3f3;
+  border-radius: 50%;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.mode-eyebrow {
+  margin: 0 0 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  opacity: 0.5;
+}
+
+.mode-modal h2 {
+  margin: 0 0 30px;
+  font-size: 2rem;
+  letter-spacing: -1px;
+}
+
+.mode-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.mode-card {
+  border: 1px solid #ddd;
+  background: #fafafa;
+  border-radius: 18px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.mode-card:hover {
+  transform: translateY(-3px);
+  border-color: #111;
+  background: white;
+}
+
+.mode-icon {
+  width: 55px;
+  height: 55px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  background: #111;
+  color: white;
+  font-size: 1.6rem;
+}
+
+.mode-card h3 {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+}
+
+.mode-card p {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  opacity: 0.55;
+}
+
+/* =========================
+   TABLET
+========================= */
+
 @media (max-width: 800px) {
+  .navbar {
+    padding: 20px 5%;
+  }
+
   .hero {
+    width: 90%;
     grid-template-columns: 1fr;
     gap: 50px;
     text-align: center;
+    padding: 45px 0 60px;
   }
 
   .hero-content {
@@ -161,181 +304,172 @@ footer {
     order: -1;
   }
 
+  .photo-card {
+    width: min(320px, 80vw);
+  }
+
   h1 {
     letter-spacing: -2px;
   }
 }
 
 /* =========================
-   PHOTO MODE SELECTOR
+   MOBILE
 ========================= */
 
-.mode-overlay {
-  position: fixed;
-
-  inset: 0;
-
-  z-index: 1000;
-
-  background:
-    rgba(0, 0, 0, 0.55);
-
-  backdrop-filter: blur(8px);
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  padding: 20px;
-}
-
-.mode-modal {
-  position: relative;
-
-  width: min(650px, 100%);
-
-  background: white;
-
-  border-radius: 24px;
-
-  padding: 40px;
-
-  box-shadow:
-    0 30px 100px rgba(0, 0, 0, 0.25);
-}
-
-.mode-close {
-  position: absolute;
-
-  top: 18px;
-
-  right: 20px;
-
-  width: 35px;
-
-  height: 35px;
-
-  border: none;
-
-  background: #f3f3f3;
-
-  border-radius: 50%;
-
-  font-size: 1.4rem;
-
-  line-height: 1;
-
-  cursor: pointer;
-}
-
-.mode-eyebrow {
-  margin: 0 0 10px;
-
-  font-size: 0.75rem;
-
-  font-weight: 700;
-
-  letter-spacing: 2px;
-
-  opacity: 0.5;
-}
-
-.mode-modal h2 {
-  margin: 0 0 30px;
-
-  font-size: 2rem;
-
-  letter-spacing: -1px;
-}
-
-.mode-options {
-  display: grid;
-
-  grid-template-columns:
-    1fr 1fr;
-
-  gap: 15px;
-}
-
-.mode-card {
-  border: 1px solid #ddd;
-
-  background: #fafafa;
-
-  border-radius: 18px;
-
-  padding: 22px;
-
-  display: flex;
-
-  flex-direction: column;
-
-  align-items: flex-start;
-
-  gap: 18px;
-
-  text-align: left;
-
-  cursor: pointer;
-
-  transition:
-    transform 0.2s ease,
-    border-color 0.2s ease,
-    background 0.2s ease;
-}
-
-.mode-card:hover {
-  transform: translateY(-3px);
-
-  border-color: #111;
-
-  background: white;
-}
-
-.mode-icon {
-  width: 55px;
-
-  height: 55px;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  border-radius: 15px;
-
-  background: #111;
-
-  color: white;
-
-  font-size: 1.6rem;
-}
-
-.mode-card h3 {
-  margin: 0 0 6px;
-
-  font-size: 1.05rem;
-}
-
-.mode-card p {
-  margin: 0;
-
-  font-size: 0.85rem;
-
-  line-height: 1.5;
-
-  opacity: 0.55;
-}
-
 @media (max-width: 600px) {
+  .navbar {
+    padding: 18px 20px;
+  }
+
+  .logo {
+    font-size: 1.3rem;
+  }
+
+  .nav-button {
+    font-size: 0.9rem;
+  }
+
+  .hero {
+    width: calc(100% - 40px);
+    gap: 35px;
+    padding: 30px 0 45px;
+  }
+
+  .eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 1.5px;
+    margin-bottom: 15px;
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 12vw, 4rem);
+    line-height: 0.98;
+    letter-spacing: -2.5px;
+    margin-bottom: 22px;
+  }
+
+  .description {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+
+  .hero-buttons {
+    width: 100%;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .primary-button,
+  .secondary-button {
+    width: 100%;
+    padding: 14px 20px;
+  }
+
+  .photo-card {
+    width: min(280px, 72vw);
+    padding: 10px;
+  }
+
+  .photo-placeholder span {
+    font-size: 3rem;
+    margin-bottom: 15px;
+  }
+
+  .photo-placeholder p {
+    font-size: 0.85rem;
+  }
+
+  footer {
+    padding: 20px;
+    font-size: 0.7rem;
+  }
+
+  /* MODE MODAL */
+
+  .mode-overlay {
+    padding: 12px;
+  }
+
   .mode-modal {
-    padding: 30px 20px;
+    border-radius: 20px;
+    padding: 30px 18px;
+    max-height: calc(100vh - 24px);
+  }
+
+  .mode-close {
+    top: 14px;
+    right: 14px;
+  }
+
+  .mode-eyebrow {
+    font-size: 0.65rem;
+    padding-right: 35px;
+  }
+
+  .mode-modal h2 {
+    font-size: 1.5rem;
+    line-height: 1.2;
+    margin-bottom: 22px;
+    padding-right: 25px;
   }
 
   .mode-options {
     grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .mode-card {
+    padding: 18px;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .mode-icon {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    font-size: 1.4rem;
+  }
+
+  .mode-card h3 {
+    font-size: 1rem;
+  }
+
+  .mode-card p {
+    font-size: 0.8rem;
+  }
+}
+
+/* =========================
+   VERY SMALL PHONES
+========================= */
+
+@media (max-width: 380px) {
+  .navbar {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .hero {
+    width: calc(100% - 30px);
+  }
+
+  h1 {
+    font-size: 2.35rem;
+  }
+
+  .description {
+    font-size: 0.9rem;
+  }
+
+  .photo-card {
+    width: 240px;
+  }
+
+  .mode-modal h2 {
+    font-size: 1.35rem;
   }
 }

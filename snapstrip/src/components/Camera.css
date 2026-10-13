@@ -1,17 +1,23 @@
 .camera-page {
   min-height: 100vh;
+  min-height: 100svh;
   background: #111;
   color: white;
   display: flex;
   flex-direction: column;
 }
 
+/* =========================
+   HEADER
+========================= */
+
 .camera-header {
-  height: 80px;
+  min-height: 80px;
   padding: 0 5%;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  box-sizing: border-box;
 }
 
 .camera-back {
@@ -21,6 +27,7 @@
   cursor: pointer;
   font-size: 1rem;
   opacity: 0.8;
+  padding: 10px 0;
 }
 
 .camera-back:hover {
@@ -32,6 +39,10 @@
   font-weight: 800;
 }
 
+/* =========================
+   CAMERA CONTENT
+========================= */
+
 .camera-content {
   flex: 1;
   display: flex;
@@ -39,7 +50,12 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
+  box-sizing: border-box;
 }
+
+/* =========================
+   CAMERA
+========================= */
 
 .camera-container {
   position: relative;
@@ -48,6 +64,7 @@
   background: #222;
   overflow: hidden;
   border-radius: 20px;
+  flex-shrink: 0;
 }
 
 .camera-video {
@@ -55,7 +72,12 @@
   height: 100%;
   object-fit: cover;
   transform: scaleX(-1);
+  display: block;
 }
+
+/* =========================
+   CAMERA FRAME
+========================= */
 
 .camera-overlay {
   position: absolute;
@@ -71,7 +93,12 @@
   height: 85%;
   border: 2px solid rgba(255, 255, 255, 0.7);
   border-radius: 20px;
+  box-sizing: border-box;
 }
+
+/* =========================
+   COUNTDOWN
+========================= */
 
 .countdown {
   position: absolute;
@@ -82,17 +109,28 @@
   font-size: clamp(6rem, 15vw, 12rem);
   font-weight: 800;
   text-shadow: 0 5px 30px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
 }
+
+/* =========================
+   CONTROLS
+========================= */
 
 .camera-controls {
   text-align: center;
-  padding: 30px;
+  padding: 30px 20px 10px;
+  box-sizing: border-box;
 }
 
 .camera-tip {
   opacity: 0.6;
-  margin-bottom: 20px;
+  margin: 0 0 20px;
+  font-size: 0.95rem;
 }
+
+/* =========================
+   CAPTURE BUTTON
+========================= */
 
 .capture-button {
   width: 78px;
@@ -104,6 +142,8 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .capture-button span {
@@ -118,12 +158,21 @@
   transform: scale(0.9);
 }
 
+.capture-button:active span {
+  transform: scale(0.82);
+}
+
 .capture-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
+/* =========================
+   CAMERA ERROR
+========================= */
+
 .camera-error {
+  width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -131,6 +180,7 @@
   justify-content: center;
   text-align: center;
   padding: 30px;
+  box-sizing: border-box;
 }
 
 .error-icon {
@@ -139,13 +189,14 @@
 }
 
 .camera-error h2 {
-  margin-bottom: 10px;
+  margin: 0 0 10px;
 }
 
 .camera-error p {
   max-width: 450px;
   line-height: 1.6;
   opacity: 0.6;
+  margin: 0;
 }
 
 .retry-button {
@@ -154,4 +205,165 @@
   border-radius: 999px;
   padding: 12px 22px;
   cursor: pointer;
+  font-size: 0.95rem;
+}
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 800px) {
+  .camera-header {
+    min-height: 70px;
+    padding: 0 5%;
+  }
+
+  .camera-content {
+    padding: 15px;
+  }
+
+  .camera-container {
+    width: min(700px, 94vw);
+    border-radius: 18px;
+  }
+
+  .camera-frame {
+    width: 70%;
+    height: 84%;
+  }
+
+  .camera-controls {
+    padding-top: 25px;
+  }
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 600px) {
+  .camera-page {
+    min-height: 100svh;
+  }
+
+  .camera-header {
+    min-height: 64px;
+    padding: 0 20px;
+  }
+
+  .camera-back {
+    font-size: 0.9rem;
+  }
+
+  .camera-logo {
+    font-size: 1.15rem;
+  }
+
+  .camera-content {
+    width: 100%;
+    padding: 10px 15px 25px;
+    justify-content: center;
+  }
+
+  .camera-container {
+    width: 100%;
+    max-width: 500px;
+    aspect-ratio: 4 / 3;
+    border-radius: 16px;
+  }
+
+  .camera-frame {
+    width: 72%;
+    height: 82%;
+    border-radius: 16px;
+  }
+
+  .countdown {
+    font-size: clamp(5rem, 25vw, 9rem);
+  }
+
+  .camera-controls {
+    width: 100%;
+    padding: 22px 10px 5px;
+  }
+
+  .camera-tip {
+    font-size: 0.85rem;
+    margin-bottom: 18px;
+  }
+
+  .capture-button {
+    width: 72px;
+    height: 72px;
+    border-width: 4px;
+  }
+
+  .capture-button span {
+    width: 54px;
+    height: 54px;
+  }
+
+  .camera-error {
+    padding: 20px;
+  }
+
+  .error-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+  }
+
+  .camera-error h2 {
+    font-size: 1.3rem;
+  }
+
+  .camera-error p {
+    font-size: 0.85rem;
+  }
+}
+
+/* =========================
+   SMALL PHONES
+========================= */
+
+@media (max-width: 380px) {
+  .camera-header {
+    padding: 0 15px;
+  }
+
+  .camera-logo {
+    font-size: 1.05rem;
+  }
+
+  .camera-content {
+    padding: 8px 12px 20px;
+  }
+
+  .camera-container {
+    border-radius: 14px;
+  }
+
+  .camera-frame {
+    width: 74%;
+    height: 80%;
+    border-radius: 14px;
+  }
+
+  .camera-controls {
+    padding-top: 18px;
+  }
+
+  .camera-tip {
+    font-size: 0.8rem;
+    margin-bottom: 15px;
+  }
+
+  .capture-button {
+    width: 66px;
+    height: 66px;
+  }
+
+  .capture-button span {
+    width: 50px;
+    height: 50px;
+  }
 }

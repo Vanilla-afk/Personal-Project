@@ -4,6 +4,7 @@ import "./Camera.css";
 function Camera({ onClose, onCapture }) {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
+  const countdownTimerRef = useRef(null);
 
   const [cameraError, setCameraError] = useState("");
   const [countdown, setCountdown] = useState(null);
@@ -13,12 +14,27 @@ function Camera({ onClose, onCapture }) {
     startCamera();
 
     return () => {
+      if (countdownTimerRef.current) {
+        clearInterval(countdownTimerRef.current);
+        countdownTimerRef.current = null;
+      }
+
       stopCamera();
     };
   }, []);
 
   async function startCamera() {
     try {
+      setCameraError("");
+      setIsReady(false);
+
+      if (!navigator.mediaDevices?.getUserMedia) {
+        setCameraError(
+          "Your browser does not support camera access."
+        );
+        return;
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: "user",
@@ -42,6 +58,8 @@ function Camera({ onClose, onCapture }) {
     } catch (error) {
       console.error(error);
 
+      setIsReady(false);
+
       setCameraError(
         "We couldn't access your camera. Please allow camera permission and try again."
       );
@@ -56,10 +74,16 @@ function Camera({ onClose, onCapture }) {
 
       streamRef.current = null;
     }
+
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+
+    setIsReady(false);
   }
 
   function takePhoto() {
-    if (!videoRef.current || !isReady) {
+    if (!videoRef.current || !isReady || countdown !== null) {
       return;
     }
 
@@ -67,13 +91,14 @@ function Camera({ onClose, onCapture }) {
 
     setCountdown(number);
 
-    const timer = setInterval(() => {
+    countdownTimerRef.current = setInterval(() => {
       number -= 1;
 
       if (number > 0) {
         setCountdown(number);
       } else {
-        clearInterval(timer);
+        clearInterval(countdownTimerRef.current);
+        countdownTimerRef.current = null;
 
         setCountdown(null);
 
@@ -85,6 +110,10 @@ function Camera({ onClose, onCapture }) {
   function captureImage() {
     const video = videoRef.current;
 
+    if (!video || video.videoWidth === 0 || video.videoHeight === 0) {
+      return;
+    }
+
     const canvas = document.createElement("canvas");
 
     canvas.width = video.videoWidth;
@@ -92,6 +121,12 @@ function Camera({ onClose, onCapture }) {
 
     const context = canvas.getContext("2d");
 
+    if (!context) {
+      return;
+    }
+
+    // Keep the captured photo mirrored
+    // so it matches the camera preview.
     context.translate(canvas.width, 0);
     context.scale(-1, 1);
 
@@ -110,12 +145,23 @@ function Camera({ onClose, onCapture }) {
     onCapture(image);
   }
 
+  function handleClose() {
+    if (countdownTimerRef.current) {
+      clearInterval(countdownTimerRef.current);
+      countdownTimerRef.current = null;
+    }
+
+    setCountdown(null);
+    stopCamera();
+    onClose();
+  }
+
   return (
     <div className="camera-page">
       <header className="camera-header">
         <button
           className="camera-back"
-          onClick={onClose}
+          onClick={handleClose}
         >
           ← Back
         </button>
@@ -127,7 +173,6 @@ function Camera({ onClose, onCapture }) {
 
       <main className="camera-content">
         <div className="camera-container">
-
           {cameraError ? (
             <div className="camera-error">
               <div className="error-icon">📷</div>
@@ -176,6 +221,7 @@ function Camera({ onClose, onCapture }) {
               className="capture-button"
               onClick={takePhoto}
               disabled={!isReady || countdown !== null}
+              aria-label="Take photo"
             >
               <span></span>
             </button>

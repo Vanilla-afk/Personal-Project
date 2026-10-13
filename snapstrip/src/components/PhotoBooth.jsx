@@ -4,6 +4,7 @@ import "./PhotoBooth.css";
 function PhotoBooth({ onClose }) {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
+  const countdownTimerRef = useRef(null);
 
   const [photos, setPhotos] = useState([]);
   const [countdown, setCountdown] = useState(null);
@@ -40,12 +41,17 @@ function PhotoBooth({ onClose }) {
   };
 
   useEffect(() => {
-    startCamera();
+  startCamera();
 
-    return () => {
-      stopCamera();
-    };
-  }, []);
+  return () => {
+    if (countdownTimerRef.current) {
+      clearInterval(countdownTimerRef.current);
+      countdownTimerRef.current = null;
+    }
+
+    stopCamera();
+  };
+}, []);
 
   async function startCamera() {
     try {
@@ -99,13 +105,15 @@ function PhotoBooth({ onClose }) {
 
     setCountdown(number);
 
-    const timer = setInterval(() => {
+    countdownTimerRef.current = setInterval(() => {
       number -= 1;
 
       if (number > 0) {
         setCountdown(number);
       } else {
-        clearInterval(timer);
+        clearInterval(countdownTimerRef.current);
+        countdownTimerRef.current = null;
+
         setCountdown(null);
         capturePhoto();
       }
