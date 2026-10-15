@@ -4,6 +4,10 @@ import {
   useRef,
   useState,
 } from "react";
+import {
+  CAMERA_FILTERS,
+  filterToCss,
+} from "../utils/cameraFilters";
 import "./PhotoEditor.css";
 
 function PhotoEditor({ image, onBack, onSave }) {
@@ -46,15 +50,10 @@ function PhotoEditor({ image, onBack, onSave }) {
   const editorPhotoRef =
     useRef(null);
 
-  const filters = {
-    original: "",
-    grayscale: "grayscale(100%)",
-    sepia: "sepia(80%)",
-    vintage:
-      "sepia(30%) contrast(110%) saturate(80%)",
-    cool:
-      "saturate(80%) hue-rotate(15deg)",
-  };
+  // Shared with the live camera so both use the same looks
+  const filters = Object.fromEntries(
+    CAMERA_FILTERS.map((f) => [f.id, filterToCss(f)])
+  );
 
   const frames = {
     none: {

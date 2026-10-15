@@ -1,24 +1,33 @@
 import { useEffect, useRef, useState } from "react";
+import FilterBar from "./FilterBar";
+import {
+  drawFilteredFrame,
+  filterToCss,
+  getFilter,
+  vignetteCss,
+} from "../utils/cameraFilters";
 import "./Camera.css";
 
 function Camera({ onClose, onCapture }) {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const countdownTimerRef = useRef(null);
+  const flashTimerRef = useRef(null);
 
   const [cameraError, setCameraError] = useState("");
   const [countdown, setCountdown] = useState(null);
   const [isReady, setIsReady] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("original");
+  const [flash, setFlash] = useState(false);
+
+  const filter = getFilter(activeFilter);
 
   useEffect(() => {
     startCamera();
 
     return () => {
-      if (countdownTimerRef.current) {
-        clearInterval(countdownTimerRef.current);
-        countdownTimerRef.current = null;
-      }
-
+      clearInterval(countdownTimerRef.current);
+      clearTimeout(flashTimerRef.current);
       stopCamera();
     };
   }, []);
@@ -29,21 +38,15 @@ function Camera({ onClose, onCapture }) {
       setIsReady(false);
 
       if (!navigator.mediaDevices?.getUserMedia) {
-        setCameraError(
-          "Your browser does not support camera access."
-        );
+        setCameraError("Your browser does not support camera access.");
         return;
       }
 
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: "user",
-          width: {
-            ideal: 1280,
-          },
-          height: {
-            ideal: 720,
-          },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
         },
         audio: false,
       });
@@ -57,9 +60,7 @@ function Camera({ onClose, onCapture }) {
       setIsReady(true);
     } catch (error) {
       console.error(error);
-
       setIsReady(false);
-
       setCameraError(
         "We couldn't access your camera. Please allow camera permission and try again."
       );
@@ -68,10 +69,7 @@ function Camera({ onClose, onCapture }) {
 
   function stopCamera() {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => {
-        track.stop();
-      });
-
+      streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
     }
 
@@ -83,12 +81,11 @@ function Camera({ onClose, onCapture }) {
   }
 
   function takePhoto() {
-    if (!videoRef.current || !isReady || countdown !== null) {
+    if (!videoRef.current || !isReady || countdown !== null || flash) {
       return;
     }
 
     let number = 3;
-
     setCountdown(number);
 
     countdownTimerRef.current = setInterval(() => {
@@ -99,9 +96,7 @@ function Camera({ onClose, onCapture }) {
       } else {
         clearInterval(countdownTimerRef.current);
         countdownTimerRef.current = null;
-
         setCountdown(null);
-
         captureImage();
       }
     }, 1000);
@@ -114,118 +109,139 @@ function Camera({ onClose, onCapture }) {
       return;
     }
 
-    const canvas = document.createElement("canvas");
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    const context = canvas.getContext("2d");
-
-    if (!context) {
-      return;
-    }
-
-    // Keep the captured photo mirrored
-    // so it matches the camera preview.
-    context.translate(canvas.width, 0);
-    context.scale(-1, 1);
-
-    context.drawImage(
+    // Draw the frame with the selected filter baked in
+    const canvas = drawFilteredFrame(
+      document.createElement("canvas"),
       video,
-      0,
-      0,
-      canvas.width,
-      canvas.height
+      video.videoWidth,
+      video.videoHeight,
+      activeFilter,
+      { mirror: true }
     );
 
     const image = canvas.toDataURL("image/jpeg", 0.95);
 
-    stopCamera();
+    // Let the flash animation play before moving on
+    setFlash(true);
 
-    onCapture(image);
+    flashTimerRef.current = setTimeout(() => {
+      stopCamera();
+      onCapture(image);
+    }, 380);
   }
 
   function handleClose() {
-    if (countdownTimerRef.current) {
-      clearInterval(countdownTimerRef.current);
-      countdownTimerRef.current = null;
-    }
+    clearInterval(countdownTimerRef.current);
+    countdownTimerRef.current = null;
+    clearTimeout(flashTimerRef.current);
 
     setCountdown(null);
     stopCamera();
     onClose();
   }
 
+  const busy = countdown !== null || flash;
+
   return (
     <div className="camera-page">
       <header className="camera-header">
-        <button
-          className="camera-back"
-          onClick={handleClose}
-        >
+        <button className="camera-back" onClick={handleClose}>
           ← Back
         </button>
 
-        <div className="camera-logo">
-          SnapStrip
-        </div>
+        <div className="camera-logo">SnapStrip</div>
+
+        <div className="camera-header-spacer" />
       </header>
 
       <main className="camera-content">
-        <div className="camera-container">
+        <div className={`camera-container ${flash ? "is-flashing" : ""}`}>
           {cameraError ? (
             <div className="camera-error">
               <div className="error-icon">📷</div>
-
               <h2>Camera unavailable</h2>
-
               <p>{cameraError}</p>
-
-              <button
-                className="retry-button"
-                onClick={startCamera}
-              >
+              <button className="retry-button" onClick={startCamera}>
                 Try Again
               </button>
             </div>
           ) : (
             <>
+              {!isReady && (
+                <div className="camera-loading">
+                  <span className="camera-spinner" />
+                  <p>Starting camera…</p>
+                </div>
+              )}
+
               <video
                 ref={videoRef}
                 className="camera-video"
+                style={{ filter: filterToCss(filter) }}
                 autoPlay
                 playsInline
                 muted
               />
 
+              {/* Filter overlays (match what is drawn on capture) */}
+              {filter.tint && (
+                <div
+                  className="camera-fx"
+                  style={{ background: filter.tint }}
+                />
+              )}
+
+              {filter.vignette && (
+                <div
+                  className="camera-fx"
+                  style={{ background: vignetteCss(filter.vignette) }}
+                />
+              )}
+
               <div className="camera-overlay">
-                <div className="camera-frame"></div>
+                <div className="camera-frame">
+                  <i /><i /><i /><i />
+                </div>
               </div>
 
               {countdown !== null && (
-                <div className="countdown">
-                  {countdown}
+                <div className="countdown" key={countdown}>
+                  <span>{countdown}</span>
                 </div>
               )}
+
+              {flash && <div className="shutter-flash" />}
             </>
           )}
         </div>
 
         {!cameraError && (
-          <div className="camera-controls">
-            <p className="camera-tip">
-              Position yourself inside the frame
-            </p>
+          <>
+            <FilterBar
+              active={activeFilter}
+              onChange={setActiveFilter}
+              disabled={flash}
+            />
 
-            <button
-              className="capture-button"
-              onClick={takePhoto}
-              disabled={!isReady || countdown !== null}
-              aria-label="Take photo"
-            >
-              <span></span>
-            </button>
-          </div>
+            <div className="camera-controls">
+              <p className="camera-tip">
+                {countdown !== null
+                  ? "Hold still…"
+                  : `${filter.name} filter · position yourself inside the frame`}
+              </p>
+
+              <button
+                className={`capture-button ${
+                  countdown !== null ? "counting" : ""
+                }`}
+                onClick={takePhoto}
+                disabled={!isReady || busy}
+                aria-label="Take photo"
+              >
+                <span></span>
+              </button>
+            </div>
+          </>
         )}
       </main>
     </div>

@@ -1,10 +1,23 @@
 import { useEffect, useRef, useState } from "react";
+import FilterBar from "./FilterBar";
+import {
+  drawFilteredFrame,
+  filterToCss,
+  getFilter,
+  vignetteCss,
+} from "../utils/cameraFilters";
 import "./PhotoBooth.css";
 
 function PhotoBooth({ onClose }) {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const countdownTimerRef = useRef(null);
+  const flashTimerRef = useRef(null);
+  const finishTimerRef = useRef(null);
+  const photosRef = useRef([]);
+
+  const [activeFilter, setActiveFilter] = useState("original");
+  const [flash, setFlash] = useState(false);
 
   const [photos, setPhotos] = useState([]);
   const [countdown, setCountdown] = useState(null);
@@ -49,9 +62,20 @@ function PhotoBooth({ onClose }) {
       countdownTimerRef.current = null;
     }
 
+    clearTimeout(flashTimerRef.current);
+    clearTimeout(finishTimerRef.current);
+
     stopCamera();
   };
 }, []);
+
+  // Re-attach the stream whenever the <video> element is (re)mounted,
+  // e.g. after "Take Another Strip".
+  useEffect(() => {
+    if (videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+    }
+  }, [isReady, isFinished]);
 
   async function startCamera() {
     try {
@@ -97,7 +121,7 @@ function PhotoBooth({ onClose }) {
   }
 
   function takePhoto() {
-    if (!isReady || countdown !== null) {
+    if (!isReady || countdown !== null || flash) {
       return;
     }
 
@@ -123,51 +147,44 @@ function PhotoBooth({ onClose }) {
   function capturePhoto() {
     const video = videoRef.current;
 
-    if (!video) return;
+    if (!video || video.videoWidth === 0) return;
 
-    const canvas = document.createElement("canvas");
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    const context = canvas.getContext("2d");
-
-    context.translate(canvas.width, 0);
-    context.scale(-1, 1);
-
-    context.drawImage(
+    // Draw the frame with the selected filter baked in
+    const canvas = drawFilteredFrame(
+      document.createElement("canvas"),
       video,
-      0,
-      0,
-      canvas.width,
-      canvas.height
+      video.videoWidth,
+      video.videoHeight,
+      activeFilter,
+      { mirror: true }
     );
 
-    const image = canvas.toDataURL(
-      "image/jpeg",
-      0.95
+    const image = canvas.toDataURL("image/jpeg", 0.95);
+
+    setFlash(true);
+
+    flashTimerRef.current = setTimeout(
+      () => setFlash(false),
+      450
     );
 
-    setPhotos((currentPhotos) => {
-      const updatedPhotos = [
-        ...currentPhotos,
-        image,
-      ];
+    const updatedPhotos = [...photosRef.current, image];
 
-      if (updatedPhotos.length === totalPhotos) {
-        setTimeout(() => {
-          stopCamera();
-          setIsFinished(true);
-        }, 100);
-      }
+    photosRef.current = updatedPhotos;
+    setPhotos(updatedPhotos);
 
-      return updatedPhotos;
-    });
+    if (updatedPhotos.length === totalPhotos) {
+      finishTimerRef.current = setTimeout(() => {
+        stopCamera();
+        setIsFinished(true);
+      }, 800);
+    }
   }
 
   function resetBooth() {
     stopCamera();
 
+    photosRef.current = [];
     setPhotos([]);
     setIsFinished(false);
     setCountdown(null);
@@ -753,25 +770,65 @@ function PhotoBooth({ onClose }) {
           </h1>
         </div>
 
-        <div className="booth-camera">
+        <div
+          className={`booth-camera ${flash ? "is-flashing" : ""}`}
+        >
+          {!isReady && (
+            <div className="booth-loading">
+              <span className="booth-spinner" />
+              <p>Starting camera…</p>
+            </div>
+          )}
+
           <video
             ref={videoRef}
             className="booth-video"
+            style={{ filter: filterToCss(getFilter(activeFilter)) }}
             autoPlay
             playsInline
             muted
           />
 
+          {getFilter(activeFilter).tint && (
+            <div
+              className="booth-fx"
+              style={{
+                background: getFilter(activeFilter).tint,
+              }}
+            />
+          )}
+
+          {getFilter(activeFilter).vignette && (
+            <div
+              className="booth-fx"
+              style={{
+                background: vignetteCss(
+                  getFilter(activeFilter).vignette
+                ),
+              }}
+            />
+          )}
+
           <div className="booth-overlay">
-            <div className="booth-frame"></div>
+            <div className="booth-frame">
+              <i /><i /><i /><i />
+            </div>
           </div>
 
           {countdown !== null && (
-            <div className="booth-countdown">
-              {countdown}
+            <div className="booth-countdown" key={countdown}>
+              <span>{countdown}</span>
             </div>
           )}
+
+          {flash && <div className="booth-flash" />}
         </div>
+
+        <FilterBar
+          active={activeFilter}
+          onChange={setActiveFilter}
+          disabled={countdown !== null || flash}
+        />
 
         <div className="booth-progress">
           {Array.from(
@@ -791,6 +848,19 @@ function PhotoBooth({ onClose }) {
           )}
         </div>
 
+        {photos.length > 0 && (
+          <div className="booth-thumbs">
+            {photos.map((photo, index) => (
+              <img
+                key={index}
+                src={photo}
+                alt={`Shot ${index + 1}`}
+                style={{ "--i": index }}
+              />
+            ))}
+          </div>
+        )}
+
         <p className="booth-tip">
           Get ready! Your photo will be
           taken automatically after the
@@ -798,11 +868,15 @@ function PhotoBooth({ onClose }) {
         </p>
 
         <button
-          className="booth-capture-button"
+          className={`booth-capture-button ${
+            countdown !== null ? "counting" : ""
+          }`}
           onClick={takePhoto}
+          aria-label="Take photo"
           disabled={
             !isReady ||
-            countdown !== null
+            countdown !== null ||
+            flash
           }
         >
           <span></span>

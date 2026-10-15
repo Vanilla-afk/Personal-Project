@@ -1,0 +1,73 @@
+/* =========================================================
+   Global animations & transitions
+========================================================= */
+
+/* Smooth screen-to-screen entrance */
+.app,
+.camera-page,
+.booth-page,
+.editor-page,
+.gallery-page {
+  animation: screenIn 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Staggered hero text on the home page */
+.hero-content > * {
+  animation: fadeUp 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.hero-content > :nth-child(1) { animation-delay: 0.05s; }
+.hero-content > :nth-child(2) { animation-delay: 0.15s; }
+.hero-content > :nth-child(3) { animation-delay: 0.25s; }
+.hero-content > :nth-child(4) { animation-delay: 0.35s; }
+
+/* Gallery grid items rise in one after another */
+.gallery-page [class*="card"],
+.gallery-page [class*="item"] {
+  animation: fadeUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Editor filter buttons feel more tactile */
+.filter-button {
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.filter-button:hover {
+  transform: translateY(-2px);
+}
+
+.filter-preview img {
+  transition: filter 0.3s ease;
+}
+
+/* Good keyboard focus everywhere */
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid rgba(107, 77, 230, 0.55);
+  outline-offset: 3px;
+}
+
+@keyframes screenIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

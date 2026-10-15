@@ -473,3 +473,220 @@ footer {
     font-size: 1.35rem;
   }
 }
+/* =========================================================
+   REFRESH: home page polish
+========================================================= */
+
+.app {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(700px 500px at 85% 10%, rgba(255, 170, 190, 0.35), transparent 60%),
+    radial-gradient(600px 500px at 5% 90%, rgba(150, 190, 255, 0.3), transparent 60%),
+    #fafafa;
+}
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(12px);
+  background: rgba(250, 250, 250, 0.6);
+}
+
+.nav-button {
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.7);
+  opacity: 1;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nav-button:hover {
+  transform: translateY(-1px);
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff7a8a, #ffb36b);
+  box-shadow: 0 0 0 4px rgba(255, 122, 138, 0.2);
+}
+
+h1 {
+  background: linear-gradient(120deg, #111 40%, #6b4de6 75%, #ff6f91);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  padding-bottom: 6px;
+}
+
+.primary-button {
+  background: linear-gradient(135deg, #1a1a1a, #3a2f5b);
+  box-shadow: 0 10px 28px rgba(60, 40, 120, 0.28);
+}
+
+.primary-button:hover {
+  box-shadow: 0 14px 34px rgba(60, 40, 120, 0.36);
+}
+
+.primary-button:active,
+.secondary-button:active {
+  transform: scale(0.97);
+}
+
+.secondary-button {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.secondary-button:hover {
+  background: #fff;
+}
+
+/* Stacked, floating photo cards */
+.photo-stack {
+  position: relative;
+  width: min(360px, 100%);
+  aspect-ratio: 3 / 4;
+}
+
+.photo-stack .photo-card {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  transform: none;
+  border-radius: 6px;
+}
+
+.card-back  { --r: -9deg; --x: -34px; --y: 10px; }
+.card-mid   { --r: -3deg; --x: -12px; --y: 4px; }
+.card-front { --r: 4deg;  --x: 8px;   --y: 0px; }
+
+.photo-stack .photo-card {
+  transform: translate(var(--x), var(--y)) rotate(var(--r));
+  animation:
+    cardIn 0.9s cubic-bezier(0.2, 0.9, 0.3, 1.1) both,
+    cardFloat 6s ease-in-out infinite;
+}
+
+.card-back  { animation-delay: 0.15s, 1.1s; }
+.card-mid   { animation-delay: 0.3s, 1.4s; }
+.card-front { animation-delay: 0.45s, 1.7s; }
+
+.photo-stack .photo-card:hover {
+  animation-play-state: paused;
+}
+
+.tone-sunset {
+  background: linear-gradient(160deg, #ffd3a5, #fd6585);
+}
+
+.tone-sky {
+  background: linear-gradient(160deg, #a1c4fd, #c2e9fb);
+}
+
+.tone-sunset span,
+.tone-sky span {
+  margin: 0;
+}
+
+.floating-emoji {
+  position: absolute;
+  font-size: 2rem;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.15));
+  animation: emojiFloat 5s ease-in-out infinite;
+}
+
+.e1 { top: -14px; right: -10px; animation-delay: 0s; }
+.e2 { bottom: 40px; left: -34px; animation-delay: 1.2s; font-size: 1.6rem; }
+.e3 { bottom: -12px; right: 14px; animation-delay: 2.4s; font-size: 1.8rem; }
+
+/* Mode modal */
+.mode-overlay {
+  animation: fadeIn 0.25s ease both;
+}
+
+.mode-modal {
+  animation: modalPop 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.15) both;
+}
+
+.mode-close {
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.mode-close:hover {
+  transform: rotate(90deg);
+  background: #e6e6e6;
+}
+
+.mode-card {
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+}
+
+.mode-card:hover {
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.1);
+}
+
+.mode-card:hover .mode-icon {
+  transform: rotate(-8deg) scale(1.08);
+}
+
+.mode-icon {
+  transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.4);
+}
+
+.mode-card:nth-child(1) { animation: fadeUp 0.45s 0.1s both; }
+.mode-card:nth-child(2) { animation: fadeUp 0.45s 0.2s both; }
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translate(0, 60px) rotate(0deg) scale(0.9); }
+  to   { opacity: 1; transform: translate(var(--x), var(--y)) rotate(var(--r)); }
+}
+
+@keyframes cardFloat {
+  0%, 100% { transform: translate(var(--x), var(--y)) rotate(var(--r)); }
+  50%      { transform: translate(var(--x), calc(var(--y) - 10px)) rotate(calc(var(--r) + 1.5deg)); }
+}
+
+@keyframes emojiFloat {
+  0%, 100% { transform: translateY(0) rotate(-6deg); }
+  50%      { transform: translateY(-14px) rotate(8deg); }
+}
+
+@keyframes modalPop {
+  from { opacity: 0; transform: translateY(24px) scale(0.94); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (max-width: 800px) {
+  .photo-stack { width: min(320px, 80vw); }
+}
+
+@media (max-width: 600px) {
+  .photo-stack { width: min(260px, 70vw); }
+  .e2 { left: -16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .photo-stack .photo-card,
+  .floating-emoji,
+  .mode-modal,
+  .mode-card {
+    animation: none !important;
+  }
+}

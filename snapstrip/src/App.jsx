@@ -273,15 +273,31 @@ function App() {
           </div>
         </section>
 
-        <section className="preview">
-          <div className="photo-card">
-            <div className="photo-placeholder">
-              <span>📸</span>
-
-              <p>
-                Your memories start here.
-              </p>
+        <section className="preview" aria-hidden="true">
+          <div className="photo-stack">
+            <div className="photo-card card-back">
+              <div className="photo-placeholder tone-sunset">
+                <span>🌅</span>
+              </div>
             </div>
+
+            <div className="photo-card card-mid">
+              <div className="photo-placeholder tone-sky">
+                <span>✨</span>
+              </div>
+            </div>
+
+            <div className="photo-card card-front">
+              <div className="photo-placeholder">
+                <span>📸</span>
+
+                <p>Your memories start here.</p>
+              </div>
+            </div>
+
+            <div className="floating-emoji e1">❤️</div>
+            <div className="floating-emoji e2">⭐</div>
+            <div className="floating-emoji e3">🌸</div>
           </div>
         </section>
       </main>
