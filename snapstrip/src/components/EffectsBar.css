@@ -1,0 +1,122 @@
+.fx {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: min(900px, 95vw);
+}
+
+.fx .filter-bar {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.fx-tabs {
+    display: inline-flex;
+    gap: 4px;
+    margin-top: 18px;
+    padding: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.fx-tab {
+    position: relative;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.65);
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.25s ease, color 0.25s ease, transform 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.fx-tab:hover {
+    color: #fff;
+}
+
+.fx-tab:active {
+    transform: scale(0.96);
+}
+
+.fx-tab.active {
+    background: #fff;
+    color: #111;
+}
+
+.fx-dot {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #ff4d5e;
+}
+
+.sticker-swatch {
+    width: 58px;
+    height: 58px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.7rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    transition:
+        transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+        border-color 0.2s ease,
+        box-shadow 0.25s ease,
+        background 0.2s ease;
+}
+
+.filter-chip:hover .sticker-swatch {
+    transform: translateY(-3px);
+}
+
+.filter-chip.active .sticker-swatch {
+    border-color: #fff;
+    background: rgba(255, 255, 255, 0.18);
+    transform: scale(1.1);
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.18);
+}
+
+.fx-hint {
+    min-height: 22px;
+    margin-top: 4px;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    text-align: center;
+}
+
+.fx-retry {
+    border: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+}
+
+@media (max-width: 600px) {
+    .fx {
+        width: 100%;
+    }
+
+    .fx-tabs {
+        margin-top: 14px;
+    }
+
+    .sticker-swatch {
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+        font-size: 1.5rem;
+    }
+}

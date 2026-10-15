@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import FilterBar from "./FilterBar";
+import EffectsBar from "./EffectsBar";
+import { useFaceStickers } from "../hooks/useFaceStickers";
+import { drawStickers } from "../utils/stickers";
 import {
   drawFilteredFrame,
   filterToCss,
   getFilter,
   vignetteCss,
 } from "../utils/cameraFilters";
+import { createGif } from "../utils/gifExport";
 import "./PhotoBooth.css";
 
 function PhotoBooth({ onClose }) {
@@ -15,8 +18,10 @@ function PhotoBooth({ onClose }) {
   const flashTimerRef = useRef(null);
   const finishTimerRef = useRef(null);
   const photosRef = useRef([]);
+  const stickerCanvasRef = useRef(null);
 
   const [activeFilter, setActiveFilter] = useState("original");
+  const [activeSticker, setActiveSticker] = useState("none");
   const [flash, setFlash] = useState(false);
 
   const [photos, setPhotos] = useState([]);
@@ -31,6 +36,19 @@ function PhotoBooth({ onClose }) {
   const [footerText, setFooterText] = useState(
     "A memory worth keeping."
   );
+
+  const { facesRef, status, faceFound, retry } = useFaceStickers({
+    videoRef,
+    canvasRef: stickerCanvasRef,
+    stickerId: activeSticker,
+    enabled: isReady && !cameraError && !isFinished,
+  });
+
+  // GIF export
+  const [gifSpeed, setGifSpeed] = useState(700);
+  const [gifBoomerang, setGifBoomerang] = useState(false);
+  const [gifProgress, setGifProgress] = useState(null); // null = idle
+  const [gifResult, setGifResult] = useState(null); // { url, size }
 
   const totalPhotos = 4;
 
@@ -159,6 +177,16 @@ function PhotoBooth({ onClose }) {
       { mirror: true }
     );
 
+    // Bake the face sticker on top of the filtered photo
+    if (activeSticker !== "none") {
+      drawStickers(
+        canvas.getContext("2d"),
+        facesRef.current,
+        activeSticker,
+        { mirror: true }
+      );
+    }
+
     const image = canvas.toDataURL("image/jpeg", 0.95);
 
     setFlash(true);
@@ -257,6 +285,57 @@ function PhotoBooth({ onClose }) {
       width,
       height
     );
+  }
+
+  async function makeGif() {
+    if (photos.length !== totalPhotos || gifProgress !== null) {
+      return;
+    }
+
+    setGifProgress(0);
+
+    try {
+      const blob = await createGif(photos, {
+        delay: gifSpeed,
+        boomerang: gifBoomerang,
+        background: template === "film" ? "#111111" : background,
+        footerText: footerText.trim(),
+        dark: template === "film" || background === "#111111",
+        onProgress: setGifProgress,
+      });
+
+      closeGif();
+
+      setGifResult({
+        url: URL.createObjectURL(blob),
+        size: blob.size,
+      });
+    } catch (error) {
+      console.error("GIF export failed:", error);
+      alert("Sorry, the GIF could not be created.");
+    } finally {
+      setGifProgress(null);
+    }
+  }
+
+  function closeGif() {
+    setGifResult((current) => {
+      if (current) URL.revokeObjectURL(current.url);
+      return null;
+    });
+  }
+
+  function downloadGif() {
+    if (!gifResult) return;
+
+    const link = document.createElement("a");
+
+    link.href = gifResult.url;
+    link.download = `snapstrip-${Date.now()}.gif`;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   async function downloadStrip() {
@@ -715,6 +794,68 @@ function PhotoBooth({ onClose }) {
                 />
               </div>
 
+              <div className="customization-section">
+                <div className="customization-title">
+                  Animated GIF
+                </div>
+
+                <div className="gif-options">
+                  {[
+                    ["Fast", 400],
+                    ["Normal", 700],
+                    ["Slow", 1100],
+                  ].map(([label, ms]) => (
+                    <button
+                      key={label}
+                      className={
+                        gifSpeed === ms
+                          ? "gif-chip active"
+                          : "gif-chip"
+                      }
+                      onClick={() => setGifSpeed(ms)}
+                    >
+                      {label}
+                    </button>
+                  ))}
+
+                  <button
+                    className={
+                      gifBoomerang
+                        ? "gif-chip active"
+                        : "gif-chip"
+                    }
+                    onClick={() =>
+                      setGifBoomerang((v) => !v)
+                    }
+                    aria-pressed={gifBoomerang}
+                  >
+                    🔁 Boomerang
+                  </button>
+                </div>
+
+                <button
+                  className="booth-gif-button"
+                  onClick={makeGif}
+                  disabled={gifProgress !== null}
+                >
+                  {gifProgress !== null
+                    ? `Creating GIF… ${Math.round(
+                        gifProgress * 100
+                      )}%`
+                    : "🎞️ Create GIF"}
+                </button>
+
+                {gifProgress !== null && (
+                  <div className="gif-progress">
+                    <div
+                      style={{
+                        width: `${gifProgress * 100}%`,
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+
               <div className="customization-actions">
                 <button
                   className="booth-action-button"
@@ -734,6 +875,50 @@ function PhotoBooth({ onClose }) {
             </div>
           </div>
         </main>
+
+        {gifResult && (
+          <div className="gif-overlay" onClick={closeGif}>
+            <div
+              className="gif-modal"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <button
+                className="gif-close"
+                onClick={closeGif}
+                aria-label="Close"
+              >
+                ×
+              </button>
+
+              <p className="gif-eyebrow">YOUR GIF</p>
+
+              <img
+                src={gifResult.url}
+                alt="Animated photo strip"
+              />
+
+              <p className="gif-size">
+                {(gifResult.size / 1024 / 1024).toFixed(2)} MB
+              </p>
+
+              <div className="gif-actions">
+                <button
+                  className="booth-action-button"
+                  onClick={downloadGif}
+                >
+                  Download GIF
+                </button>
+
+                <button
+                  className="booth-secondary-button"
+                  onClick={closeGif}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -809,6 +994,11 @@ function PhotoBooth({ onClose }) {
             />
           )}
 
+          <canvas
+            ref={stickerCanvasRef}
+            className="booth-stickers"
+          />
+
           <div className="booth-overlay">
             <div className="booth-frame">
               <i /><i /><i /><i />
@@ -824,10 +1014,15 @@ function PhotoBooth({ onClose }) {
           {flash && <div className="booth-flash" />}
         </div>
 
-        <FilterBar
-          active={activeFilter}
-          onChange={setActiveFilter}
+        <EffectsBar
+          filter={activeFilter}
+          onFilterChange={setActiveFilter}
+          sticker={activeSticker}
+          onStickerChange={setActiveSticker}
           disabled={countdown !== null || flash}
+          trackingStatus={status}
+          faceFound={faceFound}
+          onRetry={retry}
         />
 
         <div className="booth-progress">

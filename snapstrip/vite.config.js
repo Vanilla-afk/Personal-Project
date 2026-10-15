@@ -1,8 +1,25 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
+import { readFileSync } from "node:fs";
+
+// Keep the CDN-hosted MediaPipe WASM runtime in sync with the
+// installed @mediapipe/tasks-vision version.
+const mediapipeVersion = JSON.parse(
+  readFileSync(
+    new URL(
+      "./node_modules/@mediapipe/tasks-vision/package.json",
+      import.meta.url
+    ),
+    "utf-8"
+  )
+).version;
 
 export default defineConfig({
+  define: {
+    __MP_VERSION__: JSON.stringify(mediapipeVersion),
+  },
+
   plugins: [
     react(),
 

@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import FilterBar from "./FilterBar";
+import EffectsBar from "./EffectsBar";
+import { useFaceStickers } from "../hooks/useFaceStickers";
+import { drawStickers } from "../utils/stickers";
 import {
   drawFilteredFrame,
   filterToCss,
@@ -13,14 +15,23 @@ function Camera({ onClose, onCapture }) {
   const streamRef = useRef(null);
   const countdownTimerRef = useRef(null);
   const flashTimerRef = useRef(null);
+  const stickerCanvasRef = useRef(null);
 
   const [cameraError, setCameraError] = useState("");
   const [countdown, setCountdown] = useState(null);
   const [isReady, setIsReady] = useState(false);
   const [activeFilter, setActiveFilter] = useState("original");
+  const [activeSticker, setActiveSticker] = useState("none");
   const [flash, setFlash] = useState(false);
 
   const filter = getFilter(activeFilter);
+
+  const { facesRef, status, faceFound, retry } = useFaceStickers({
+    videoRef,
+    canvasRef: stickerCanvasRef,
+    stickerId: activeSticker,
+    enabled: isReady && !cameraError,
+  });
 
   useEffect(() => {
     startCamera();
@@ -119,6 +130,16 @@ function Camera({ onClose, onCapture }) {
       { mirror: true }
     );
 
+    // Bake the face sticker on top of the filtered photo
+    if (activeSticker !== "none") {
+      drawStickers(
+        canvas.getContext("2d"),
+        facesRef.current,
+        activeSticker,
+        { mirror: true }
+      );
+    }
+
     const image = canvas.toDataURL("image/jpeg", 0.95);
 
     // Let the flash animation play before moving on
@@ -198,6 +219,11 @@ function Camera({ onClose, onCapture }) {
                 />
               )}
 
+              <canvas
+                ref={stickerCanvasRef}
+                className="camera-stickers"
+              />
+
               <div className="camera-overlay">
                 <div className="camera-frame">
                   <i /><i /><i /><i />
@@ -217,17 +243,24 @@ function Camera({ onClose, onCapture }) {
 
         {!cameraError && (
           <>
-            <FilterBar
-              active={activeFilter}
-              onChange={setActiveFilter}
+            <EffectsBar
+              filter={activeFilter}
+              onFilterChange={setActiveFilter}
+              sticker={activeSticker}
+              onStickerChange={setActiveSticker}
               disabled={flash}
+              trackingStatus={status}
+              faceFound={faceFound}
+              onRetry={retry}
             />
 
             <div className="camera-controls">
               <p className="camera-tip">
                 {countdown !== null
                   ? "Hold still…"
-                  : `${filter.name} filter · position yourself inside the frame`}
+                  : `${filter.name} filter${
+                      activeSticker !== "none" ? " + sticker" : ""
+                    } · position yourself inside the frame`}
               </p>
 
               <button
